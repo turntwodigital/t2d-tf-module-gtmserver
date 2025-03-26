@@ -24,7 +24,7 @@ resource "google_compute_global_address" "default_ipv6" {
   count      = var.deploy_load_balancer ? 1 : 0
   provider   = google-beta
   project    = var.project_id
-  name       = "${var.resource_prefix}-gtmss-ipv6-address"
+  name       = "${var.resource_prefix}-sgtm-ipv6-address"
   ip_version = "IPV6"
 }
 
@@ -33,7 +33,7 @@ resource "google_compute_global_address" "default_ipv4" {
   count      = var.deploy_load_balancer ? 1 : 0
   provider   = google-beta
   project    = var.project_id
-  name       = "${var.resource_prefix}-gtmss-ipv4-address"
+  name       = "${var.resource_prefix}-sgtm-ipv4-address"
   ip_version = "IPV4"
 }
 
@@ -46,7 +46,7 @@ resource "google_compute_region_network_endpoint_group" "serverless-neg" {
   region                = each.key
 
   cloud_run {
-    service = google_cloud_run_v2_service.gtmss-cr[each.key].name
+    service = google_cloud_run_v2_service.sgtm-cr[each.key].name
   }
 }
 
@@ -105,24 +105,24 @@ resource "google_compute_global_forwarding_rule" "fwd_ipv6_https" {
 
 resource "google_compute_target_http_proxy" "l7_proxy" {
   count   = var.deploy_load_balancer ? 1 : 0
-  name    = "${var.resource_prefix}-l7-xlb-gtmss-proxy-http"
-  url_map = google_compute_url_map.gtmss_url_map.0.id
+  name    = "${var.resource_prefix}-l7-xlb-sgtm-proxy-http"
+  url_map = google_compute_url_map.sgtm_url_map.0.id
 }
 
 resource "google_compute_target_https_proxy" "l7_proxy" {
   count           = var.deploy_load_balancer && var.deploy_ssl ? 1 : 0
   provider        = google-beta
   project         = var.project_id
-  name            = "${var.resource_prefix}-l7-xlb-gtmss-proxy-https"
-  url_map         = google_compute_url_map.gtmss_url_map.0.id
+  name            = "${var.resource_prefix}-l7-xlb-sgtm-proxy-https"
+  url_map         = google_compute_url_map.sgtm_url_map.0.id
   certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.sgtm_certmap.0.id}"
   ssl_policy      = var.deploy_ssl_policy ? google_compute_ssl_policy.sgtm-ssl-policy.0.self_link : null
 }
 
-resource "google_compute_backend_service" "gtmss_backend" {
+resource "google_compute_backend_service" "sgtm_backend" {
   depends_on              = [google_project_service.compute_api]
   count                   = var.deploy_load_balancer ? 1 : 0
-  name                    = "${var.resource_prefix}-gtmss-backend"
+  name                    = "${var.resource_prefix}-sgtm-backend"
   protocol                = "HTTP"
   port_name               = "http"
   timeout_sec             = 30
@@ -157,10 +157,10 @@ resource "google_compute_backend_service" "gtmss_backend" {
 }
 
 
-resource "google_compute_backend_service" "gtmss_serving_backend" {
+resource "google_compute_backend_service" "sgtm_serving_backend" {
   depends_on              = [google_project_service.compute_api]
   count                   = var.deploy_load_balancer && length(var.custom_request_headers) > 0 ? 1 : 0
-  name                    = "${var.resource_prefix}-gtmss-serving-backend"
+  name                    = "${var.resource_prefix}-sgtm-serving-backend"
   description             = "Backend to serve GTM and GTAG scripts, no custom headers applied"
   protocol                = "HTTP"
   port_name               = "http"
@@ -195,10 +195,10 @@ resource "google_compute_backend_service" "gtmss_serving_backend" {
 
 }
 
-resource "google_compute_url_map" "gtmss_url_map" {
+resource "google_compute_url_map" "sgtm_url_map" {
   count           = var.deploy_load_balancer ? 1 : 0
-  name            = "${var.resource_prefix}-gtmss-url-map"
-  default_service = google_compute_backend_service.gtmss_backend.0.id
+  name            = "${var.resource_prefix}-sgtm-url-map"
+  default_service = google_compute_backend_service.sgtm_backend.0.id
   dynamic "host_rule" {
     for_each = length(var.custom_request_headers) > 0 ? [1] : []
     content {
@@ -212,13 +212,13 @@ resource "google_compute_url_map" "gtmss_url_map" {
       name = "serving"
       path_rule {
         paths   = ["/gtm.js", "/gtag/*"]
-        service = google_compute_backend_service.gtmss_serving_backend.0.id
+        service = google_compute_backend_service.sgtm_serving_backend.0.id
       }
       path_rule {
         paths   = ["/*"]
-        service = google_compute_backend_service.gtmss_backend.0.id
+        service = google_compute_backend_service.sgtm_backend.0.id
       }
-      default_service = google_compute_backend_service.gtmss_backend.0.id
+      default_service = google_compute_backend_service.sgtm_backend.0.id
     }
   }
 

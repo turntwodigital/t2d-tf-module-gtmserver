@@ -8,7 +8,7 @@ resource "google_project_service" "cloud_run_api" {
   disable_on_destroy = false
 }
 
-resource "google_cloud_run_v2_service" "gtmss-cr" {
+resource "google_cloud_run_v2_service" "sgtm-cr" {
   depends_on = [google_project_service.cloud_run_api]
   for_each   = toset(var.regions)
   location   = each.key
@@ -51,12 +51,12 @@ data "google_iam_policy" "noauth" {
 resource "google_cloud_run_service_iam_policy" "noauth" {
   for_each = toset(var.regions)
   location = each.key
-  service  = google_cloud_run_v2_service.gtmss-cr[each.key].name
+  service  = google_cloud_run_v2_service.sgtm-cr[each.key].name
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
 
-resource "google_cloud_run_v2_service" "gtmss-cr-preview" {
+resource "google_cloud_run_v2_service" "sgtm-cr-preview" {
   count      = var.deploy_preview_server ? 1 : 0
   depends_on = [google_project_service.cloud_run_api]
   location   = var.preview_region
@@ -85,7 +85,7 @@ resource "google_cloud_run_v2_service" "gtmss-cr-preview" {
 resource "google_cloud_run_service_iam_policy" "noauth_preview" {
   count    = var.deploy_preview_server ? 1 : 0
   location = var.preview_region
-  service  = google_cloud_run_v2_service.gtmss-cr-preview[0].name
+  service  = google_cloud_run_v2_service.sgtm-cr-preview[0].name
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
