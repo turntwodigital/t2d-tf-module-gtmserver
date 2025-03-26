@@ -29,7 +29,7 @@ resource "google_cloud_run_v2_service" "sgtm-cr" {
       }
       env {
         name  = "PREVIEW_SERVER_URL"
-        value = var.deploy_preview_server ? google_cloud_run_v2_service.gtmss-cr-preview[0].uri : ""
+        value = var.deploy_preview_server ? google_cloud_run_v2_service.sgtm-cr-preview[0].uri : ""
       }
       env {
         name  = "GOOGLE_CLOUD_PROJECT"
