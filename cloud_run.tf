@@ -60,7 +60,7 @@ resource "google_cloud_run_v2_service" "sgtm-cr-preview" {
   count      = var.deploy_preview_server ? 1 : 0
   depends_on = [google_project_service.cloud_run_api]
   location   = var.preview_region
-  name       = "${var.resource_prefix}-sgtm-preview-server"
+  name       = "${var.resource_prefix}-gcr-sgtm-preview-server"
   ingress    = "INGRESS_TRAFFIC_ALL"
 
   template {
