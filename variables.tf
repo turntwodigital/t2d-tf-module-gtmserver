@@ -56,6 +56,12 @@ variable "min_instance_count" {
   default     = 1
 }
 
+variable "container_image" {
+  description = "The container image that will be deployed for sGTM"
+  type        = string
+  default     = "gcr.io/cloud-tagging-10302018/gtm-cloud-image:stable"
+}
+
 variable "container_config" {
   description = "The container configuration for your sGTM"
   type        = string
@@ -159,4 +165,34 @@ variable "custom_request_headers" {
   description = "Custom request headers to send to the backend service"
   type        = list(string)
   default     = []
+}
+
+variable "run_service_account_id" {
+  description = "The account ID (without domain) for the Cloud Run service account. If unset a name is derived from the resource prefix."
+  type        = string
+  default     = null
+}
+
+variable "build_service_account_id" {
+  description = "The account ID (without domain) for the Cloud Build service account. If unset a name is derived from the resource prefix."
+  type        = string
+  default     = null
+}
+
+variable "enable_auto_updates" {
+  description = "Whether to enable automatic revision updates through Cloud Build and Cloud Scheduler."
+  type        = bool
+  default     = false
+}
+
+variable "cron_schedule" {
+  description = "Cron schedule used by Cloud Scheduler to trigger automatic updates. Leave empty to disable scheduling."
+  type        = string
+  default     = ""
+}
+
+variable "cron_timezone" {
+  description = "Timezone that Cloud Scheduler should use for the cron schedule."
+  type        = string
+  default     = "Etc/UTC"
 }
