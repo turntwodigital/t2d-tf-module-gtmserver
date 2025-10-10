@@ -18,22 +18,13 @@ module "gtmss" {
   regions              = ["us-central1", "us-east1"]
   resource_prefix      = "t2d"
   container_config     = "ABCDEF123456FEDCBA654321"
-  container_image      = "gcr.io/cloud-tagging-10302018/gtm-cloud-image:stable"
   min_instance_count   = 3
   max_instance_count   = 10
   deploy_load_balancer = true
   deploy_ssl           = true
   domains              = ["sgtm.example.com.", "sgtm.example.org."]
-
-  enable_auto_updates = true
-  cron_schedule       = "0 9 * * 1"
-  cron_timezone       = "Europe/Amsterdam"
 }
 ```
-
-### Automatic revision updates
-
-When `enable_auto_updates` is set to `true` the module provisions Cloud Build and Cloud Scheduler resources that periodically redeploy the Cloud Run services with the latest container image and configuration. You can customise the service account IDs that are created by setting `run_service_account_id` and `build_service_account_id`, and adjust the timing via `cron_schedule` and `cron_timezone`.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

@@ -27,13 +27,3 @@ output "preview_url" {
   value       = var.deploy_preview_server ? join("", google_cloud_run_v2_service.sgtm-cr-preview[*].uri) : null
   description = "A list of the Cloud Run services URLs created by this module"
 }
-
-output "run_service_account_email" {
-  value       = google_service_account.sgtm_service_account.email
-  description = "Email address of the service account used by the Cloud Run services"
-}
-
-output "cloud_build_service_account_email" {
-  value       = var.enable_auto_updates ? google_service_account.cloud_builder[0].email : null
-  description = "Email address of the Cloud Build service account when automatic updates are enabled"
-}
