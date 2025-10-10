@@ -92,7 +92,7 @@ resource "google_cloud_run_v2_service" "sgtm-cr-preview" {
     google_project_iam_member.sgtm_service_account_logging,
   ]
   location   = var.preview_region
-  name       = "${var.resource_prefix}-gcr-sgtm-preview-server"
+  name       = "${var.resource_prefix}-sgtm-preview-server"
   ingress    = "INGRESS_TRAFFIC_ALL"
 
   template {
